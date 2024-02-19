@@ -1,5 +1,5 @@
-const sum = require("./index");
+const makeAWithdraw = require("./index");
 
-test("adds 1 + 2 to equal 3", () => {
-  expect(sum(1, 2)).toBe(3);
+test("write correct output when you want to withdraw 1 coin", () => {
+  expect(makeAWithdraw(1)).toBe("Your withdraw is 1 coin of 1");
 });
