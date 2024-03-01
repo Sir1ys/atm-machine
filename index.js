@@ -1,40 +1,56 @@
-const contentOfAtm = [
-  { value: 500, type: "bill" },
-  { value: 200, type: "bill" },
-  { value: 100, type: "bill" },
-  { value: 50, type: "bill" },
-  { value: 20, type: "bill" },
-  { value: 10, type: "bill" },
-  { value: 5, type: "bill" },
-  { value: 2, type: "coin" },
-  { value: 1, type: "coin" },
-];
+function recursion(amount, contentOfAtm) {
+  if (amount === 0) return 1;
 
-function recursion(amount) {
-  const element = contentOfAtm.find((e) => amount >= e.value);
+  const element = contentOfAtm.find((e) => amount >= e.value && e.quantity > 0);
 
-  if (amount === 0) return 0;
+  const elementToString = JSON.stringify({ ...element, quantity: 1 });
 
-  return JSON.stringify(element) + " " + recursion(amount - element.value);
+  if (element === undefined) return 0;
+
+  element.quantity -= 1;
+
+  return (
+    elementToString + " " + recursion(amount - element.value, contentOfAtm)
+  );
 }
 
-function makeAWithdraw(amount) {
-  const resultOfRecursion = recursion(amount).split(" ");
+function makeAWithdraw(amount, contentOfAtm) {
+  const copyOfContent = [...contentOfAtm];
+
+  const resultOfRecursion = recursion(amount, copyOfContent)
+    .split(" ")
+    .map((e) => JSON.parse(e));
+
+  if (resultOfRecursion.indexOf(0) !== -1)
+    return "There is not enough money in ATM!";
+
+  const copyOfTheResult = [];
+
+  resultOfRecursion.forEach((el) => {
+    const element = copyOfTheResult.find((i) => i.value === el.value);
+    const indexOfElement = copyOfTheResult.indexOf(element);
+
+    if (indexOfElement === -1) {
+      copyOfTheResult.push(el);
+    } else {
+      copyOfTheResult[indexOfElement].quantity += 1;
+    }
+  });
+
   let string = "Your withdraw is";
 
-  resultOfRecursion.forEach((e, i) => {
-    const lastObjectIndex = resultOfRecursion.length - 2;
-    const { value, type } = JSON.parse(e);
+  copyOfTheResult.forEach(({ value, type, quantity }, i) => {
+    const lastObjectIndex = copyOfTheResult.length - 2;
 
     switch (true) {
       case i === 0:
-        string += ` 1 ${type} of ${value}`;
+        string += ` ${quantity} ${type} of ${value}`;
         break;
       case i > 0 && i < lastObjectIndex:
-        string += `, 1 ${type} of ${value}`;
+        string += `, ${quantity} ${type} of ${value}`;
         break;
       case i === lastObjectIndex:
-        string += ` and 1 ${type} of ${value}`;
+        string += ` and ${quantity} ${type} of ${value}`;
         break;
       default:
         break;
